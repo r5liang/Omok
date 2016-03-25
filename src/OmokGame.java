@@ -32,98 +32,77 @@ public class OmokGame {
 	public int getState() {
 		return state;
 	}
- 	
-	/* activated when the game receives input from either player.
-	 * 
-	 * isPlayer1 is boolean for telling which player the input came from
-	 * input is the text the player entered
-	 * 
-	 * Invalid inputs will not change state
-	 * Returns new state upon completion (or current state again if nothing changed)
+	
+	/* starts the game when state is INIT, or restarts when a player has won. returns true
+	 * otherwise returns false
 	 */
-	public int onInput(boolean isPlayer1, String input) {
+	public boolean start(boolean isPlayer1) {
 		if (state == INIT) {
-			if (input.equals("start")) { // BEGIN
-				state = isPlayer1 ? PLAYER2_TURN : PLAYER1_TURN;
-			}
-		} else if (state == PLAYER1_TURN) {
-			if (input.equals("resign")) { // resignation
-				state = isPlayer1 ? PLAYER2_WIN : PLAYER1_WIN;
-			} else if (isPlayer1) {
-				int[] move = parseMove(input);
-				if (move[0] != -1) { // valid move
-					b.placePiece(1, move[0], move[1]);
-					if (b.checkConnections(move[0], move[1])) { // has this move won the game?
-						state = PLAYER1_WIN;
-						System.out.println("Player 1 has won");
-					} else {
-						state = PLAYER2_TURN;
-						System.out.println("changed to player2's turn");
-					}
-				}
-			}
-		} else if (state == PLAYER2_TURN) {
-			if (input.equals("resign")) { // resignation
-				state = isPlayer1 ? PLAYER2_WIN : PLAYER1_WIN;
-			} else if (!isPlayer1) {
-				int[] move = parseMove(input);
-				if (move[0] != -1) { // valid move
-					b.placePiece(-1, move[0], move[1]);
-					if (b.checkConnections(move[0], move[1])) { // has this move won the game?
-						state = PLAYER2_WIN;
-						System.out.println("Player 2 has won");
-					} else {
-						state = PLAYER1_TURN;
-						System.out.println("changed to player2's turn");
-					}
-				}
-			}
+			state = isPlayer1 ? PLAYER2_TURN : PLAYER1_TURN;
+			return true;
 		} else if (state == PLAYER1_WIN) {
-			if (input.equals("restart")) { // restart with losing player's turn
-				b.clear();
-				state = PLAYER2_TURN;
-			}
+			b.clear();
+			state = PLAYER2_TURN;
+			return true;
 		} else if (state == PLAYER2_WIN) {
-			if (input.equals("restart")) {
-				b.clear();
-				state = PLAYER1_TURN;
-			}
+			b.clear();
+			state = PLAYER1_TURN;
+			return true;
 		}
-		return state;
+		return false;
 	}
 	
-	private int[] parseMove(String input) {
-		input = input.trim();
-		String[] parts = input.split(" ");
-		if (parts.length != 2) { // not 2 parts
-			System.out.println("not 2 parts");
-			return new int[]{ -1, -1 };
+	/* Resigns the game and awards win to other player. */
+	public boolean resign(boolean isPlayer1) {
+		if (state == PLAYER1_TURN || state == PLAYER2_TURN) { // resignation
+			state = isPlayer1 ? PLAYER2_WIN : PLAYER1_WIN;
+			return true;
+		} else {
+			return false;
 		}
-		int first;
-		int second;
-		try {
-			first = Integer.parseInt(parts[0]);
-			second = Integer.parseInt(parts[1]);
-		} catch (Exception e) { // either part is not a number
-			System.out.println("not a number");
-			return new int[]{ -1, -1 };
+	}
+	
+	/* attempts to place a piece on the board */
+	public boolean makeMove(int x, int y, boolean isPlayer1) {
+		if (x < 0 || x >= b.getBoardLength() || y < 0 || y >= b.getBoardWidth()) { // out of bounds
+			System.out.println("out of bounds");
+			return false;
 		}
-		if (first < 0 || first >= b.getBoardLength() || second < 0 || second >= b.getBoardWidth()) { // out of bounds
-			System.out.println("out of bound");
-			return new int[]{ -1, -1 };
-		}
-		if (b.getPieceAt(first, second) != 0) { // already has existing piece
+		if (b.getPieceAt(x, y) != 0) { // already has existing piece
 			System.out.println("existing piece");
-			return new int[]{ -1, -1 };			
+			return false;		
 		}
-		return new int[]{ first, second };
+		if (state == PLAYER1_TURN && isPlayer1) {
+			b.placePiece(1, x, y);
+			if (b.checkConnections(x, y)) { // has this move won the game?
+				state = PLAYER1_WIN;
+				System.out.println("Player 1 has won");
+			} else {
+				state = PLAYER2_TURN;
+				System.out.println("changed to player2's turn");
+			}
+			return true;
+			
+		} else if (state == PLAYER2_TURN && !isPlayer1) {
+			b.placePiece(-1, x, y);
+			if (b.checkConnections(x, y)) { // has this move won the game?
+				state = PLAYER2_WIN;
+				System.out.println("Player 2 has won");
+			} else {
+				state = PLAYER1_TURN;
+				System.out.println("changed to player2's turn");
+			}
+			return true;
+		}
+		return false;
 	}
 	
+	/* Returns an ASCII drawing of the board */
 	public String toString() {
-		String answer = player1.getID() + ": " + player1.getPiece() + "\n" + player2.getID() + ": " + player2.getPiece();
-		answer += "\n\n";
+		/*String answer = player1.getID() + ": " + player1.getPiece() + "\n" + player2.getID() + ": " + player2.getPiece();
+		answer += "\n\n"; */
 		int[][] omokBoard = b.getBoard();
-		answer += "  ";
+		String answer = "  ";
 		for (int j = 0; j < omokBoard[0].length; j++) {
 			answer += j + " ";
 		}
