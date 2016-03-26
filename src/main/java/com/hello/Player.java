@@ -1,3 +1,5 @@
+package com.hello;
+
 /* Represents an Omok player */
 public class Player {
 	private final String piece;

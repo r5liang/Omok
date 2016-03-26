@@ -1,3 +1,4 @@
+package com.hello;
 
 public class OmokGame {
 	
@@ -14,13 +15,13 @@ public class OmokGame {
 	private Player player2;
 	private String errMsg;
 	
-	public OmokGame() {
+	public OmokGame(Player p1, Player p2) {
 		b = new Board();
-		player1 = new Player("player1", "X");
-		player2 = new Player("player2", "O");
+		player1 = p1;
+		player2 = p2;
 		state = INIT;
 	}
-	
+	/*
 	public void swapPlayer1(Player p) {
 		player1 = p;
 	}
@@ -28,9 +29,14 @@ public class OmokGame {
 	public void swapPlayer2(Player p) {
 		player2 = p;
 	}
-	
+	*/
 	public int getState() {
 		return state;
+	}
+	
+	public void reset() {
+		state = INIT;
+		b.clear();
 	}
 	
 	/* starts the game when state is INIT, or restarts when a player has won. returns true
@@ -102,16 +108,19 @@ public class OmokGame {
 		/*String answer = player1.getID() + ": " + player1.getPiece() + "\n" + player2.getID() + ": " + player2.getPiece();
 		answer += "\n\n"; */
 		int[][] omokBoard = b.getBoard();
-		String answer = "  ";
+		String answer = ".  ";
 		for (int j = 0; j < omokBoard[0].length; j++) {
-			answer += j + " ";
+			answer += (char)(j + 65) + " ";
 		}
 		answer += "\n";
 		for (int i = 0; i < omokBoard.length; i++) {
-			answer += i + " ";
+			answer += (i + 1) + " ";
+			if (i + 1 < 10) {
+				answer += " ";
+			}
 			for (int j = 0; j < omokBoard[i].length; j++) {
 				if (omokBoard[i][j] == 0) {
-					answer += "_ ";
+					answer += "- ";
 				} else{
 					answer += (omokBoard[i][j] == 1 ? player1.getPiece() : player2.getPiece()) + " ";
 				}

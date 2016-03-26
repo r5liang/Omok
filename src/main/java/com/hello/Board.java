@@ -1,3 +1,5 @@
+package com.hello;
+
 /* Represents the board */
 public class Board {
 	public static final int WIN_AMOUNT = 5;
