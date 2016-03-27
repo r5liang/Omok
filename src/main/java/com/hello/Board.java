@@ -87,13 +87,13 @@ public class Board {
 		int count = 0;
 		int coord = y;
 		while (coord >= 0 && omokBoard[x][coord] == piece) { // counting left
-			System.out.println("count " + count + "coord " + coord + "y " + y);
+			//System.out.println("count " + count + "coord " + coord + "y " + y);
 			count++;
 			coord--;
 		}
 		coord = y + 1;
 		while (coord < omokBoard[x].length && omokBoard[x][coord] == piece) { // counting right
-			System.out.println("count " + count + "coord " + coord + "y " + y);
+			//System.out.println("count " + count + "coord " + coord + "y " + y);
 			count++;
 			coord++;
 		}

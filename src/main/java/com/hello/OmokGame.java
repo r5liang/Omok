@@ -125,7 +125,11 @@ public class OmokGame {
 					answer += (omokBoard[i][j] == 1 ? player1.getPiece() : player2.getPiece()) + " ";
 				}
 			}
-			answer += "\n";
+			answer += (i + 1) + "\n";
+		}
+		answer += ".  ";
+		for (int j = 0; j < omokBoard[0].length; j++) {
+			answer += (char)(j + 65) + " ";
 		}
 		return answer;
 	}
