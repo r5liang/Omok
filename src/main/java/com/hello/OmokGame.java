@@ -13,7 +13,6 @@ public class OmokGame {
 	private Board b;
 	private Player player1;
 	private Player player2;
-	private String errMsg;
 	
 	public OmokGame(Player p1, Player p2) {
 		b = new Board();

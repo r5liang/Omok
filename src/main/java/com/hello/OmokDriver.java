@@ -215,20 +215,30 @@ public class OmokDriver implements IListener<MessageReceivedEvent> {
 	
 	/* Gets the integer coordinates from the input. */
 	private static int[] parseMove(String input) {
-		input = input.trim();
+		input = input.trim().toUpperCase();
 		String[] parts = input.split("\\s+");
-		if (parts.length != 2) { // not 2 parts
-			//System.out.println("not 2 parts");
+		
+		char first; // WITH THIS IMPLEMENTATION THE BOARD CAN'T BE TOO BIG 
+		String toParse;
+		int second; // OR LOWERCASE CHARACTERS (HIGHER ASCII VALUES) WILL CONVERT TO UPPERCASE 
+		
+		if (parts.length == 2) { // not 2 parts
+			if (parts[0].length() != 1) {
+				//System.out.println("not a single char");
+				return new int[]{ -1, -1 };
+			}
+			first = parts[0].charAt(0);
+			toParse = parts[1];
+		} else if (parts.length == 1) {
+			first = parts[0].charAt(0);
+			toParse = parts[0].substring(1);
+		} else {
+			//System.out.println("not 1 or 2 parts");
 			return new int[]{ -1, -1 };
 		}
-		if (parts[0].length() != 1) {
-			//System.out.println("not a single char");
-			return new int[]{ -1, -1 };
-		}
-		char first = parts[0].toUpperCase().charAt(0); // WITH THIS IMPLEMENTATION THE BOARD CAN'T BE TOO BIG 
-		int second; 					// OR LOWERCASE CHARACTERS (HIGHER ASCII VALUES) WILL CONVERT TO UPPERCASE 
+		
 		try {
-			second = Integer.parseInt(parts[1]);
+			second = Integer.parseInt(toParse);
 		} catch (Exception e) { // second part is not a number
 			//System.out.println("not a number");
 			return new int[]{ -1, -1 };
