@@ -35,8 +35,9 @@ public class OmokDriver implements IListener<MessageReceivedEvent> {
 			"For more information, see https://en.wikipedia.org/wiki/Gomoku";
 	
 	public static OmokDriver INSTANCE; //Singleton instance of the bot.
+	
 	public IDiscordClient client; //The instance of the discord client.
-	private HashMap<IChannel, GameInstance> games;
+	private HashMap<IChannel, GameInstance> games; // Used to keep track of all instances of the game on different channels.
 
 
 	public static void main(String[] args) {
@@ -96,12 +97,13 @@ public class OmokDriver implements IListener<MessageReceivedEvent> {
 					sendMessage("Got both players. Type `" + OMOK_START + "` to begin.", channel);
 				}
 			} 
-		} else if (games.containsKey(channel) && games.get(channel).isReady()) {
+		} else if (games.containsKey(channel) && games.get(channel).isReady()) { // if channel has active game
 			GameInstance gi = games.get(channel);
 			OmokGame og = gi.getGame();
 			String id1 = gi.getUser1().getID();
 			String id2 = gi.getUser2().getID();
 			
+			// functions as a state machine
 			if (og.getState() == OmokGame.INIT || og.getState() == OmokGame.PLAYER1_WIN || 
 					og.getState() == OmokGame.PLAYER2_WIN ) { // starting phase
 				if (message.getContent().equals(OMOK_START)) {
@@ -168,7 +170,7 @@ public class OmokDriver implements IListener<MessageReceivedEvent> {
 		} 
 	}
 	
-	
+	/* Formats and sends the board as a discord message */
 	private void displayBoard(IChannel channel) {
 		if (games.containsKey(channel) == false || games.get(channel).isReady() == false) { // no board to display
 			return;
@@ -208,6 +210,9 @@ public class OmokDriver implements IListener<MessageReceivedEvent> {
 			return false;
 		} catch (MissingPermissionsException e) { // The bot doesn't have permission to send the message!
 			System.err.print("Missing permissions for channel!");
+			e.printStackTrace();
+			return false;
+		} catch (Exception e) { // everything else
 			e.printStackTrace();
 			return false;
 		}
