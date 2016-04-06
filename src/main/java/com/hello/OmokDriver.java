@@ -1,16 +1,16 @@
 package com.hello;
 
 import sx.blah.discord.api.ClientBuilder;
-import sx.blah.discord.api.DiscordException;
+import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
-import sx.blah.discord.handle.IListener;
-import sx.blah.discord.handle.EventDispatcher;
+import sx.blah.discord.api.IListener;
+import sx.blah.discord.api.EventDispatcher;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.util.MessageBuilder;
 import sx.blah.discord.util.HTTP429Exception;
-import sx.blah.discord.api.MissingPermissionsException;
+import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.handle.obj.IUser;
 
 import java.util.HashMap;
@@ -23,9 +23,9 @@ public class OmokDriver implements IListener<MessageReceivedEvent> {
 	public static final String HELP = "!help";
 	public static final String RULES = "!rules";
 	public static final String HELP_MESSAGE = "I am a host for the Omok board game on Discord. \n\n" + 
-			"Type `" +	OMOK_INIT + "` to start a game.\n" + 
+			"Type `" + OMOK_INIT + "` to start a game.\n" + 
 			"During the game, when it's your turn, type the letter of the column you want to place your piece " +
-			"followed by the row number, separated with a space. For example, `C 7`. \n" + 
+			"followed by the row number. For example, `C7`. \n" + 
 			"Type `" + OMOK_RESIGN + "` to forfeit the game. \n\n" + 
 			"If you are unfamiliar with Omok, type `" + RULES + "` to learn.\n" + 
 			"Please contact xxdeathx for questions and complaints.";
@@ -76,15 +76,17 @@ public class OmokDriver implements IListener<MessageReceivedEvent> {
 		IMessage message = event.getMessage(); //Gets the message from the event object 
 		IChannel channel = message.getChannel(); //Gets the channel in which this message was sent.
 		IUser sender = message.getAuthor();
+		String msg = message.getContent();
+
 		//System.out.println("hi");
 		
-		if (message.getContent().equals(HELP)) { // base commands
+		if (msg.equalsIgnoreCase(HELP)) { // base commands
 			sendMessage(HELP_MESSAGE, channel);
-		} else if (message.getContent().equals(RULES)) {
+		} else if (msg.equalsIgnoreCase(RULES)) {
 			sendMessage(RULES_MESSAGE, channel);
 		}
 		
-		if (message.getContent().equals(OMOK_INIT)) {
+		if (msg.equalsIgnoreCase(OMOK_INIT)) {
 			if (!(games.containsKey(channel))) { // never started forming a game before in this channel
 				games.put(channel, new GameInstance());
 			} 
@@ -106,7 +108,7 @@ public class OmokDriver implements IListener<MessageReceivedEvent> {
 			// functions as a state machine
 			if (og.getState() == OmokGame.INIT || og.getState() == OmokGame.PLAYER1_WIN || 
 					og.getState() == OmokGame.PLAYER2_WIN ) { // starting phase
-				if (message.getContent().equals(OMOK_START)) {
+				if (msg.equalsIgnoreCase(OMOK_START)) {
 					if (sender.getID().equals(id1) || sender.getID().equals(id2)) {
 						boolean isPlayer1 = sender.getID().equals(id1) ? true : false;
 						boolean startSuccess = og.start(isPlayer1);
@@ -115,7 +117,7 @@ public class OmokDriver implements IListener<MessageReceivedEvent> {
 					}
 				}
 			} else if (og.getState() == OmokGame.PLAYER1_TURN) { // player 1's turn
-				if (message.getContent().equals(OMOK_RESIGN) && 
+				if (msg.equalsIgnoreCase(OMOK_RESIGN) && 
 						(sender.getID().equals(id1) || sender.getID().equals(id2))) { // resignation
 					boolean isPlayer1 = sender.getID().equals(id1) ? true : false;
 					boolean resignSuccess = og.resign(isPlayer1);
@@ -124,7 +126,7 @@ public class OmokDriver implements IListener<MessageReceivedEvent> {
 					gi.resetGame();
 				} else { // check for making move
 					if (sender.getID().equals(id1)) {
-						int[] move = parseMove(message.getContent());
+						int[] move = parseMove(msg);
 						if (move[0] != -1) { // valid move
 							boolean makeMoveSuccess = og.makeMove(move[1], move[0], true);
 							System.out.println("makeMoveSuccess: " + makeMoveSuccess);
@@ -141,7 +143,7 @@ public class OmokDriver implements IListener<MessageReceivedEvent> {
 					}
 				}
 			} else if (og.getState() == OmokGame.PLAYER2_TURN) { // player 2's turn
-				if (message.getContent().equals(OMOK_RESIGN) && 
+				if (msg.equalsIgnoreCase(OMOK_RESIGN) && 
 						(sender.getID().equals(id1) || sender.getID().equals(id2))) { // resignation
 					boolean isPlayer1 = sender.getID().equals(id1) ? true : false;
 					boolean resignSuccess = og.resign(isPlayer1);
@@ -150,7 +152,7 @@ public class OmokDriver implements IListener<MessageReceivedEvent> {
 					gi.resetGame();
 				} else { // check for making move
 					if (sender.getID().equals(id2)) {
-						int[] move = parseMove(message.getContent());
+						int[] move = parseMove(msg);
 						if (move[0] != -1) { // valid move
 							boolean makeMoveSuccess = og.makeMove(move[1], move[0], false);
 							System.out.println("makeMoveSuccess: " + makeMoveSuccess);

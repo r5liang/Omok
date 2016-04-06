@@ -67,6 +67,11 @@ public class OmokGame {
 		}
 	}
 	
+	/* request to undo previous move */
+	public boolean undo(boolean isPlayer1) {
+		return false;
+	}
+	
 	/* attempts to place a piece on the board */
 	public boolean makeMove(int x, int y, boolean isPlayer1) {
 		if (x < 0 || x >= b.getBoardLength() || y < 0 || y >= b.getBoardWidth()) { // out of bounds
